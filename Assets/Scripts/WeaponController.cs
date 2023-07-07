@@ -53,7 +53,7 @@ public class WeaponController : MonoBehaviour {
             float zValue = Mathf.Atan2(surfaceNormal.y, surfaceNormal.x) * Mathf.Rad2Deg;
             float yValue = 0;
 
-            // Adjusts rotation of portal so bottom of portal always 
+            // Adjusts rotation so bottom of portal always 
             // faces the floor when placed on a tilted surface
             // todo: Change threshold for ceiling (90f -> 80f)?
             if (zValue > 90f) {
@@ -64,12 +64,16 @@ public class WeaponController : MonoBehaviour {
                 zValue = -180f - zValue;
                 yValue = 180f;
             }
-            // Adjusts rotation of portal so bottom of portal 
+            // Adjusts rotation so bottom of portal 
             // faces the player when placed on ceiling or floor
             else if (zValue is -90f or 90f) {
                 // If this code is pulled out of the player, change transform.position.x
                 // to the transform of the object specifically
-                if (hit.point.x < transform.position.x) {
+                // todo: this implementation is really sloppy but im just spitballin here
+                if (hit.point.x < transform.position.x && hit.point.y > transform.position.y) {
+                    yValue = 180f;
+                } 
+                else if (hit.point.x > transform.position.x && hit.point.y < transform.position.y) {
                     yValue = 180f;
                 }
             }
@@ -79,8 +83,6 @@ public class WeaponController : MonoBehaviour {
 
             // Handle the hit result, e.g., apply damage, trigger effects, etc.
             Instantiate(objectToSpawn, hit.point, rotation);
-
-            Debug.Log("Raycast hit: " + hit.collider.gameObject.name);
         }
     }
 }

@@ -11,8 +11,8 @@ public class PortalManager : MonoBehaviour
 {
     public static PortalManager Instance;
     
-    [SerializeField] private GameObject bluePortal;
-    [SerializeField] private GameObject orangePortal;
+    private GameObject bluePortalClone;
+    private GameObject orangePortalClone;
     
     void Start()
     {
@@ -31,19 +31,19 @@ public class PortalManager : MonoBehaviour
     {
         if (color == PortalColor.Blue)
         {
-            if (bluePortal != null)
+            if (bluePortalClone != null)
             {
-                Destroy(bluePortal);
+                Destroy(bluePortalClone);
             }
-            bluePortal = portal;
+            bluePortalClone = portal;
         }
         else if (color == PortalColor.Orange)
         {
-            if (orangePortal != null)
+            if (orangePortalClone != null)
             {
-                Destroy(orangePortal);
+                Destroy(orangePortalClone);
             }
-            orangePortal = portal;
+            orangePortalClone = portal;
         }
     }
     
