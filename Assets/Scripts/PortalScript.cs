@@ -11,16 +11,72 @@ public class PortalScript : MonoBehaviour
     private Vector3 _arrowTip;
     [SerializeField] float gizmoLength = 1f;
     [SerializeField] private PortalColor portalColor = PortalColor.None;
+    private GameObject _surfaceObject;
+    private RaycastHit2D _hit;
 
     private Vector3[] _points;
 
-    private void Awake()
-    {
-        PortalManager.Instance.CreatePortal(portalColor, gameObject);
+    private void Awake() {
+        
     }
 
     private void Start()
     {
+        _surfaceObject = _hit.collider.gameObject;
+        
+        // Checks for collisions
+        OrientPortal();
+        CheckCollisions();
+        
+        // Creates portal
+        PortalManager.Instance.AssignPortal(portalColor, gameObject);
+    }
+
+    private void Update() {
+        throw new NotImplementedException();
+    }
+
+    public void SetRaycastHit(RaycastHit2D hitToPass) {
+        _hit = hitToPass;
+    }
+
+    // todo: rewrite to use local space rather than world space
+    private void OrientPortal() {
+        Vector2 surfaceNormal = _hit.normal;
+        float zValue = Mathf.Atan2(surfaceNormal.y, surfaceNormal.x) * Mathf.Rad2Deg;
+        float yValue = 0;
+
+        // Adjusts rotation so bottom of portal always 
+        // faces the floor when placed on a tilted surface
+        // todo: Change threshold for ceiling (90f -> 80f)?
+        if (zValue > 90f) {
+            zValue = 180f - zValue;
+            yValue = 180f;
+        }
+        else if (zValue < -90f) {
+            zValue = -180f - zValue;
+            yValue = 180f;
+        }
+        // Adjusts rotation so bottom of portal 
+        // faces the player when placed on ceiling or floor
+        else if (zValue is -90f or 90f) {
+            // If this code is pulled out of the player, change transform.position.x
+            // to the transform of the object specifically
+            // todo: this implementation is really sloppy but im just spitballin here
+            if (_hit.point.x < transform.position.x && _hit.point.y > transform.position.y) {
+                yValue = 180f;
+            } 
+            else if (_hit.point.x > transform.position.x && _hit.point.y < transform.position.y) {
+                yValue = 180f;
+            }
+        }
+
+        Vector3 rotation = new Vector3(0f, yValue, zValue);
+        Debug.Log("Portal rotation: " + rotation);
+        transform.Rotate(0f, yValue, zValue, Space.World);
+    }
+
+    private void CheckCollisions() {
         
     }
 

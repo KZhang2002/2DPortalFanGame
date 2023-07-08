@@ -27,7 +27,7 @@ public class PortalManager : MonoBehaviour
         }
     }
 
-    public void CreatePortal(PortalColor color, GameObject portal)
+    public void AssignPortal(PortalColor color, GameObject portal)
     {
         if (color == PortalColor.Blue)
         {

@@ -11,6 +11,9 @@ public class WeaponController : MonoBehaviour {
     [SerializeField] private CapsuleCollider2D crouchingCollider;
     private PlayerController _pc;
     private Rigidbody2D _rb;
+    public RaycastHit2D Hit { get; private set; }
+    public GameObject LastObjectSpawned { get; private set; }
+    
 
     // Start is called before the first frame update
     void Awake() {
@@ -29,6 +32,7 @@ public class WeaponController : MonoBehaviour {
     }
 
     void Shoot(GameObject objectToSpawn) {
+        // Shooting mechanics
         Vector3 mousePosition = Input.mousePosition;
         Vector3 worldMousePosition =
             Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.nearClipPlane));
@@ -45,44 +49,14 @@ public class WeaponController : MonoBehaviour {
             playerCenter = _rb.position + crouchingCollider.offset;
         }
 
-        RaycastHit2D hit = Physics2D.Raycast(playerCenter, direction, raycastDistance);
+        Hit = Physics2D.Raycast(playerCenter, direction, raycastDistance);
         Debug.DrawRay(playerCenter, direction * 100f, Color.green, 1);
 
-        if (hit.collider != null) {
-            Vector2 surfaceNormal = hit.normal;
-            float zValue = Mathf.Atan2(surfaceNormal.y, surfaceNormal.x) * Mathf.Rad2Deg;
-            float yValue = 0;
-
-            // Adjusts rotation so bottom of portal always 
-            // faces the floor when placed on a tilted surface
-            // todo: Change threshold for ceiling (90f -> 80f)?
-            if (zValue > 90f) {
-                zValue = 180f - zValue;
-                yValue = 180f;
-            }
-            else if (zValue < -90f) {
-                zValue = -180f - zValue;
-                yValue = 180f;
-            }
-            // Adjusts rotation so bottom of portal 
-            // faces the player when placed on ceiling or floor
-            else if (zValue is -90f or 90f) {
-                // If this code is pulled out of the player, change transform.position.x
-                // to the transform of the object specifically
-                // todo: this implementation is really sloppy but im just spitballin here
-                if (hit.point.x < transform.position.x && hit.point.y > transform.position.y) {
-                    yValue = 180f;
-                } 
-                else if (hit.point.x > transform.position.x && hit.point.y < transform.position.y) {
-                    yValue = 180f;
-                }
-            }
-
-            Quaternion rotation =
-                Quaternion.Euler(0f, yValue, zValue);
-
+        if (Hit.collider != null) {
             // Handle the hit result, e.g., apply damage, trigger effects, etc.
-            Instantiate(objectToSpawn, hit.point, rotation);
+            LastObjectSpawned = Instantiate(objectToSpawn, Hit.point, Quaternion.identity);
+            Debug.Log(LastObjectSpawned.name);
+            LastObjectSpawned.GetComponent<PortalScript>().SetRaycastHit(Hit);
         }
     }
 }
