@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 7600793313307657543}
   - component: {fileID: 6307092719432554357}
   - component: {fileID: 5765858244969772680}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Wall Slide Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -4777,7 +4777,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0867f43889af6db499f5a463524c3095, type: 2}
+  - {fileID: 2100000, guid: f97863c6ff6830440b8f370aa7ea6852, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -4843,9 +4843,9 @@ GameObject:
   - component: {fileID: 4168004627964814932}
   - component: {fileID: 1954408297806908107}
   - component: {fileID: 5785933210716493631}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Custom Player
-  m_TagString: Player
+  m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -4906,8 +4906,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   raycastDistance: 100
-  objectBlue: {fileID: 7512192934253603683, guid: 97f5f0db0b8305a44a1f04571fcfaafc, type: 3}
-  objectOrange: {fileID: 7085602635079147028, guid: a80261badc5f15b48bde034485681fad, type: 3}
+  objectBlue: {fileID: 7512192934253603683, guid: 73fbeccff5dc0fb4ba38da027fb4d107, type: 3}
+  objectOrange: {fileID: 7085602635079147028, guid: 30b4ff1ddf0dcc44e8f78273d81febff, type: 3}
   standingCollider: {fileID: 1954408297806908107}
   crouchingCollider: {fileID: 5785933210716493631}
 --- !u!50 &4168004627964814932
@@ -4926,7 +4926,7 @@ Rigidbody2D:
   m_LinearDrag: 1
   m_AngularDrag: 0.05
   m_GravityScale: 0
-  m_Material: {fileID: 6200000, guid: a081f785d315a2b43966f129ce852878, type: 2}
+  m_Material: {fileID: 6200000, guid: 9a350150de7887a42b1906c9f9c8e730, type: 2}
   m_IncludeLayers:
     serializedVersion: 2
     m_Bits: 0
@@ -5018,7 +5018,7 @@ GameObject:
   - component: {fileID: 8716389115630920792}
   - component: {fileID: 5691909685296011235}
   - component: {fileID: 3456019758640873662}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: DashRing Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -9842,7 +9842,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0867f43889af6db499f5a463524c3095, type: 2}
+  - {fileID: 2100000, guid: f97863c6ff6830440b8f370aa7ea6852, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -9906,7 +9906,7 @@ GameObject:
   - component: {fileID: 6608475266571065787}
   - component: {fileID: 7634359565693341016}
   - component: {fileID: 5730798955914268686}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Visual
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -10019,7 +10019,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 1766862958, guid: 5707f5ebcf7e8b440bad2a949b2b5aab, type: 3}
+  m_Sprite: {fileID: 1766862958, guid: 0cea6377f77c0834fb4d55527391758c, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
@@ -10040,7 +10040,7 @@ Animator:
   m_GameObject: {fileID: 2032237465850104971}
   m_Enabled: 1
   m_Avatar: {fileID: 0}
-  m_Controller: {fileID: 9100000, guid: 4c8cae7307e2d8544a688447cf38853d, type: 2}
+  m_Controller: {fileID: 9100000, guid: f60768b192d2c80429c0d538cbf063fe, type: 2}
   m_CullingMode: 0
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -10158,7 +10158,7 @@ GameObject:
   - component: {fileID: 6301234253594217197}
   - component: {fileID: 1721418384871685489}
   - component: {fileID: 1738889826343728068}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Land Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14982,7 +14982,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0867f43889af6db499f5a463524c3095, type: 2}
+  - {fileID: 2100000, guid: f97863c6ff6830440b8f370aa7ea6852, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -15043,7 +15043,7 @@ GameObject:
   m_Component:
   - component: {fileID: 9171417676556890593}
   - component: {fileID: 6077574443958876642}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Trail
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -15086,7 +15086,7 @@ TrailRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: e838edadfae42f04ea5f2d8dcd7641af, type: 2}
+  - {fileID: 2100000, guid: f320986febc453d41aa7670ebb9de961, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -15189,7 +15189,7 @@ GameObject:
   - component: {fileID: 6351182611197774991}
   - component: {fileID: 4303034138113443282}
   - component: {fileID: 1404148763087020124}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Double Jump Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20013,7 +20013,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0867f43889af6db499f5a463524c3095, type: 2}
+  - {fileID: 2100000, guid: f97863c6ff6830440b8f370aa7ea6852, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -20073,7 +20073,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 3823431540606458072}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Dash Ring
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -20107,7 +20107,7 @@ GameObject:
   - component: {fileID: 3609803492983912223}
   - component: {fileID: 232398553174320450}
   - component: {fileID: 1995597214133132984}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Jump Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24932,7 +24932,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0867f43889af6db499f5a463524c3095, type: 2}
+  - {fileID: 2100000, guid: f97863c6ff6830440b8f370aa7ea6852, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -24994,7 +24994,7 @@ GameObject:
   - component: {fileID: 1962446644777822238}
   - component: {fileID: 2626551957735003552}
   - component: {fileID: 1314914329971757788}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Launch Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -29818,7 +29818,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0867f43889af6db499f5a463524c3095, type: 2}
+  - {fileID: 2100000, guid: f97863c6ff6830440b8f370aa7ea6852, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -29880,7 +29880,7 @@ GameObject:
   - component: {fileID: 163288667249202067}
   - component: {fileID: 5898920507425330677}
   - component: {fileID: 9037899635499533623}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Dash Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34646,7 +34646,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0867f43889af6db499f5a463524c3095, type: 2}
+  - {fileID: 2100000, guid: f97863c6ff6830440b8f370aa7ea6852, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -34706,7 +34706,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 4707197139925654972}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Audio
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34739,7 +34739,7 @@ GameObject:
   m_Component:
   - component: {fileID: 2802405993045440091}
   - component: {fileID: 6818625429494208610}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: WallSlide
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34866,7 +34866,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5544276367672543669}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34904,7 +34904,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7292973334464483737}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Jump Particles Parent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -34938,7 +34938,7 @@ GameObject:
   - component: {fileID: 3811656948106797623}
   - component: {fileID: 3321522104107926934}
   - component: {fileID: 5367720714643867126}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Move Particles
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -39704,7 +39704,7 @@ ParticleSystemRenderer:
   m_RenderingLayerMask: 1
   m_RendererPriority: 0
   m_Materials:
-  - {fileID: 2100000, guid: 0867f43889af6db499f5a463524c3095, type: 2}
+  - {fileID: 2100000, guid: f97863c6ff6830440b8f370aa7ea6852, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

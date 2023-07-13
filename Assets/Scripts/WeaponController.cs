@@ -4,7 +4,7 @@ using TarodevController;
 using UnityEngine;
 
 public class WeaponController : MonoBehaviour {
-    [SerializeField] private float raycastDistance = 100f;
+    [SerializeField] private float raycastDistance = 50f;
     [SerializeField] private GameObject objectBlue;
     [SerializeField] private GameObject objectOrange;
     [SerializeField] private CapsuleCollider2D standingCollider;
@@ -13,12 +13,14 @@ public class WeaponController : MonoBehaviour {
     private Rigidbody2D _rb;
     public RaycastHit2D Hit { get; private set; }
     public GameObject LastObjectSpawned { get; private set; }
+    private Camera _mainCamera;
     
 
     // Start is called before the first frame update
     void Awake() {
         _pc = GetComponent<PlayerController>();
         _rb = GetComponent<Rigidbody2D>();
+        _mainCamera = Camera.main;
     }
 
     // Update is called once per frame
@@ -34,12 +36,8 @@ public class WeaponController : MonoBehaviour {
     void Shoot(GameObject objectToSpawn) {
         // Shooting mechanics
         Vector3 mousePosition = Input.mousePosition;
-        Vector3 worldMousePosition =
-            Camera.main.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, Camera.main.nearClipPlane));
-
-        Vector2 direction = worldMousePosition - transform.position;
-        direction.Normalize();
-
+        Vector3 worldMousePosition = _mainCamera.ScreenToWorldPoint(new Vector3(mousePosition.x, mousePosition.y, _mainCamera.nearClipPlane));
+        LayerMask mask = LayerMask.GetMask("Environment");
         Vector3 playerCenter;
 
         if (_pc.Crouching) {
@@ -48,14 +46,18 @@ public class WeaponController : MonoBehaviour {
         else {
             playerCenter = _rb.position + crouchingCollider.offset;
         }
+        
+        Vector2 direction = worldMousePosition - playerCenter;
+        direction.Normalize();
+        
 
-        Hit = Physics2D.Raycast(playerCenter, direction, raycastDistance);
-        Debug.DrawRay(playerCenter, direction * 100f, Color.green, 1);
+        Hit = Physics2D.Raycast(playerCenter, direction, raycastDistance, mask);
+        Debug.DrawRay(playerCenter, direction * 50f, Color.green, 1);
 
         if (Hit.collider != null) {
             // Handle the hit result, e.g., apply damage, trigger effects, etc.
             LastObjectSpawned = Instantiate(objectToSpawn, Hit.point, Quaternion.identity);
-            Debug.Log(LastObjectSpawned.name);
+            // Debug.Log(LastObjectSpawned.name);
             LastObjectSpawned.GetComponent<PortalScript>().SetRaycastHit(Hit);
         }
     }
