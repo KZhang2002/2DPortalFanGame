@@ -4878,7 +4878,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f480bd37a93d8f34ba65f0c95cb14874, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  _stats: {fileID: 11400000, guid: 8f3e4ac96e9fac84e96172956137e1c4, type: 2}
+  _stats: {fileID: 11400000, guid: 1372d4ed2d0253d40b5c56252be49017, type: 2}
   _standingCollider: {fileID: 1954408297806908107}
   _crouchingCollider: {fileID: 5785933210716493631}
 --- !u!114 &6650107732150441003

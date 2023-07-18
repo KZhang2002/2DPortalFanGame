@@ -44,6 +44,8 @@ namespace TarodevController {
         public bool ClimbingLadder { get; private set; }
         public bool GrabbingLedge { get; private set; }
         public bool ClimbingLedge { get; private set; }
+        public CapsuleCollider2D StandingColliderRef => _standingCollider;
+        public CapsuleCollider2D CrouchingColliderRef => _crouchingCollider;
 
         public virtual void ApplyVelocity(Vector2 vel, PlayerForce forceType) {
             if (forceType == PlayerForce.Burst) _speed += vel;
@@ -144,7 +146,6 @@ namespace TarodevController {
             // Walls and Ladders
             var bounds = GetWallDetectionBounds();
             _wallHitCount = Physics2D.OverlapBoxNonAlloc(bounds.center, bounds.size, 0, _wallHits, _stats.ClimbableLayer);
-
             _hittingWall = Physics2D.CapsuleCast(_col.bounds.center, _col.size, _col.direction, 0, new Vector2(_input.FrameInput.Move.x, 0), _stats.GrounderDistance, ~_stats.PlayerLayer);
 
             Physics2D.queriesHitTriggers = true; // Ladders are set to Trigger

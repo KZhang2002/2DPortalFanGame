@@ -15,15 +15,14 @@ public class PortalManager : MonoBehaviour
     
     public GameObject BluePortal { get; private set; }
     public GameObject OrangePortal { get; private set; }
-    
-    [SerializeField] public List<LayerMask> layerList = new List<LayerMask>() {
-        LayerMask.NameToLayer("Environment"),
-        LayerMask.NameToLayer("Blue Portal"),
-        LayerMask.NameToLayer("Orange Portal")
-    };
 
-    public List<LayerMask> GetLayerList() {
-        return layerList;
+    [SerializeField] public List<int> portalLayerBlockList = new List<int>();
+    
+    //Cooldown time between portal usages
+    [SerializeField] public int portalCooldown;
+
+    public List<int> GetPortalBlockList() {
+        return portalLayerBlockList;
     }
     
     public GameObject GetPartnerPortal(PortalColor color) {
@@ -37,10 +36,16 @@ public class PortalManager : MonoBehaviour
 
         return null;
     }
-
-    // Singleton for PortalManager
+    
     void Start()
     {
+        portalLayerBlockList.Clear();
+        // Blocklist Initialization
+        portalLayerBlockList.Add(LayerMask.NameToLayer("Environment"));
+        portalLayerBlockList.Add(LayerMask.NameToLayer("Blue Portal"));
+        portalLayerBlockList.Add(LayerMask.NameToLayer("Orange Portal"));
+
+        // Singleton pattern
         if (Instance != null && Instance != this)
         {
             Destroy(gameObject);
@@ -55,7 +60,7 @@ public class PortalManager : MonoBehaviour
     public void AssignPortal(PortalColor color, GameObject portal)
     {
         if (portal != null) {
-            Debug.Log("Portal assigned.");
+            //Debug.Log("Portal assigned.");
             if (color == PortalColor.Blue)
             {
                 if (BluePortal != null)
@@ -65,6 +70,12 @@ public class PortalManager : MonoBehaviour
                 }
                 //Debug.Log(color.ToString() + " portal assigned.");
                 BluePortal = portal;
+
+                if (OrangePortal) {
+                    portal.GetComponent<PortalScript>().SetPortalPartner(OrangePortal);
+                    OrangePortal.GetComponent<PortalScript>().SetPortalPartner(portal);
+                    Debug.Log(color.ToString() + " portal triggered partner assignment.");
+                }
             }
             else if (color == PortalColor.Orange)
             {
@@ -75,6 +86,12 @@ public class PortalManager : MonoBehaviour
                 }
                 //Debug.Log(color.ToString() + " portal assigned.");
                 OrangePortal = portal;
+                
+                if (BluePortal) {
+                    portal.GetComponent<PortalScript>().SetPortalPartner(BluePortal);
+                    BluePortal.GetComponent<PortalScript>().SetPortalPartner(portal);
+                    Debug.Log(color.ToString() + " portal triggered partner assignment.");
+                }
             }
         }
     }

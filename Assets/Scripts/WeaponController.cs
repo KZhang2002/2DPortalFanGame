@@ -41,10 +41,10 @@ public class WeaponController : MonoBehaviour {
         Vector3 playerCenter;
 
         if (_pc.Crouching) {
-            playerCenter = _rb.position + standingCollider.offset;
+            playerCenter = crouchingCollider.bounds.center;
         }
         else {
-            playerCenter = _rb.position + crouchingCollider.offset;
+            playerCenter = standingCollider.bounds.center;
         }
         
         Vector2 direction = worldMousePosition - playerCenter;

@@ -20,7 +20,7 @@ MonoBehaviour:
     m_Bits: 256
   LadderLayer:
     serializedVersion: 2
-    m_Bits: 512
+    m_Bits: 0
   SnapInput: 1
   VerticalDeadzoneThreshold: 0.3
   HorizontalDeadzoneThreshold: 0.1
@@ -69,6 +69,7 @@ MonoBehaviour:
   AllowDash: 1
   DashVelocity: 50
   DashDurationFrames: 5
+  DashCooldown: 1.5
   DashEndHorizontalMultiplier: 0.25
   AllowAttacks: 0
   AttackFrameCooldown: 15

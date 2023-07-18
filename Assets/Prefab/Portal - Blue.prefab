@@ -10,7 +10,7 @@ PrefabInstance:
     m_Modifications:
     - target: {fileID: 2746673829131095529, guid: 4ab3bb500a871484780a186ff668503e, type: 3}
       propertyPath: m_Name
-      value: Blue Portal Variant
+      value: Portal - Blue
       objectReference: {fileID: 0}
     - target: {fileID: 2746673829131095529, guid: 4ab3bb500a871484780a186ff668503e, type: 3}
       propertyPath: m_Layer

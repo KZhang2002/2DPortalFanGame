@@ -1,24 +1,27 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TarodevController;
 using Unity.VisualScripting;
 using UnityEngine;
 
 public class PortalScript : MonoBehaviour
 {
     public struct BoundsPoints {
-        public BoundsPoints (Vector3 tf, Vector3 bf, Vector3 tb, Vector3 bb) {
+        public BoundsPoints (Vector3 tf, Vector3 bf, Vector3 tb, Vector3 bb, Vector3 cen) {
             topFrontPoint = tf;
             bottomFrontPoint = bf;
             topBackPoint = tb;
             bottomBackPoint = bb;
+            center = cen;
         }
         
-        public void SetBoundsPoints (Vector3 tf, Vector3 bf, Vector3 tb, Vector3 bb) {
+        public void SetBoundsPoints (Vector3 tf, Vector3 bf, Vector3 tb, Vector3 bb, Vector3 cen) {
             topFrontPoint = tf;
             bottomFrontPoint = bf;
             topBackPoint = tb;
             bottomBackPoint = bb;
+            center = cen;
         }
 
         public void LogVectors() {
@@ -28,6 +31,7 @@ public class PortalScript : MonoBehaviour
             debugMessage += "Bottom Front Vector: " + bottomFrontPoint.ToString();
             debugMessage += "Top Back Vector: " + topBackPoint.ToString();
             debugMessage += "Bottom Back Vector: " + bottomBackPoint.ToString();
+            debugMessage += "Center Vector: " + center.ToString();
             
             Debug.Log(debugMessage);
         }
@@ -37,6 +41,7 @@ public class PortalScript : MonoBehaviour
         public Vector3 bottomFrontPoint;
         public Vector3 topBackPoint;
         public Vector3 bottomBackPoint;
+        public Vector3 center;
     }
     
     //Debug
@@ -48,21 +53,28 @@ public class PortalScript : MonoBehaviour
     private GameObject _surfaceObject;
     private Collider2D _surfaceObjectCol;
     private RaycastHit2D _hit;
-    private List<LayerMask> _layerList;
+    private List<int> _portalBlockList;
     
     //References
     private GameObject _player;
+    private PlayerController _playerController;
     private GameObject _portalManager;
     private GameObject _portalPartner;
+    private EdgeController _edgeController;
     
     //Collider Info
-    [SerializeField] private BoxCollider2D mainBC;
-    // [SerializeField] private BoxCollider2D topFrontBC;
-    // [SerializeField] private BoxCollider2D bottomFrontBC;
-    // [SerializeField] private BoxCollider2D topBackBC;
-    // [SerializeField] private BoxCollider2D bottomBackBC;
+    [SerializeField] private BoxCollider2D boxCol;
+    [SerializeField] private EdgeCollider2D edgeCol;
+    [SerializeField] private GameObject portalEdgeObj;
+    private CapsuleCollider2D _standingCollider;
+    private CapsuleCollider2D _crouchingCollider;
+    
+    //Collider Detection Options
     [SerializeField] private float collisionStep = 0.1f;
     [SerializeField] private int maxCollisionTests = 100;
+    [SerializeField] private float portalPlayerEntryThreshold = 0.25f;
+    [SerializeField] private float portalPlayerExitOffset = 0.25f;
+    [SerializeField] private float portalObjectExitOffset = 0.25f;
 
     public BoundsPoints BoundsCorners { get; private set; }
     
@@ -72,13 +84,18 @@ public class PortalScript : MonoBehaviour
 
     private void Start()
     {
+        //References initialization
         _surfaceObject = _hit.collider.gameObject;
         _surfaceObjectCol = _hit.collider;
         _player = GameObject.FindWithTag("Player");
+        _playerController = _player.GetComponent<PlayerController>();
+        _standingCollider = _playerController.StandingColliderRef;
+        _crouchingCollider = _playerController.CrouchingColliderRef;
         _portalManager = GameObject.FindWithTag("PortalManager");
         _portalPartner = _portalManager.GetComponent<PortalManager>().GetPartnerPortal(portalColor);
-        _layerList = PortalManager.Instance.GetLayerList();
-        
+        _portalBlockList = PortalManager.Instance.GetPortalBlockList();
+        _edgeController = portalEdgeObj.GetComponent<EdgeController>();
+
         OrientPortal();
         
         // Checks for collisions
@@ -96,13 +113,80 @@ public class PortalScript : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D col) {
-        GameObject obj = col.gameObject;
-        if (_layerList.Contains(obj.layer)) {
-            return;
+        Debug.Log(portalColor + " portal entered.");
+        _edgeController.EnableEdges();
+        Physics2D.IgnoreCollision(col, _surfaceObjectCol, true);
+        //Debug.Log("Portal edges enabled. Surface collider disabled.");
+        CheckPortalCollision(col);
+    }
+
+    private void OnTriggerStay2D(Collider2D col) {
+        CheckPortalCollision(col);
+    }
+
+    private void OnTriggerExit2D(Collider2D col) {
+        Debug.Log(portalColor + " portal exited.");
+        _edgeController.DisableEdges();
+        Physics2D.IgnoreCollision(col, _surfaceObjectCol, false);
+        //Debug.Log("Portal edges disabled. Surface collider enabled.");
+    }
+
+    private void CheckPortalCollision(Collider2D col) {
+        if (col.CompareTag("Player")) {
+            if (edgeCol.Distance(col).distance < -portalPlayerEntryThreshold) {
+                OnEnterPortal(col);
+                Debug.Log("Player teleported");
+            }
         }
         else {
-            
+            if (edgeCol.Distance(col).distance < -col.bounds.extents.x) {
+                OnEnterPortal(col);
+                Debug.Log("Object teleported");
+            }
         }
+    }
+
+    private void OnEnterPortal(Collider2D col) {
+        GameObject obj = col.gameObject;
+        
+        if (_portalBlockList.Contains(obj.layer) || !_portalPartner) {
+            Debug.Log("Object entering portal is on invalid layer: " + LayerMask.LayerToName(obj.layer));
+            return;
+        }
+        
+        Vector3 offset = col.transform.position - transform.position;
+        Vector3 offCenterOffset;
+
+        if (col.CompareTag("Player")) {
+            offCenterOffset = transform.TransformDirection(Vector3.right) * portalPlayerExitOffset;
+        }
+        else {
+            offCenterOffset = transform.TransformDirection(Vector3.right) * portalObjectExitOffset;
+        }
+            
+        
+        col.transform.position = _portalPartner.transform.position + offset + offCenterOffset;
+        
+        Vector2 targetNormal = _portalPartner.GetComponent<PortalScript>()._hit.normal;
+        float dotProduct;
+        Vector2 newVelocity;
+        
+        if (col.CompareTag("Player")) {
+            dotProduct = Vector2.Dot(_playerController.Velocity, targetNormal);
+            newVelocity = dotProduct * targetNormal;
+            _playerController.SetVelocity(newVelocity, PlayerForce.Burst);
+        }
+        else {
+            dotProduct = Vector3.Dot(col.attachedRigidbody.velocity, targetNormal);
+            newVelocity = dotProduct * targetNormal;
+            col.attachedRigidbody.velocity = newVelocity;
+        }
+    }
+
+    //I think theres an easier/shorter way of making setters here
+    //todo: condense
+    public void SetPortalPartner(GameObject portal) {
+        _portalPartner = portal;
     }
 
     public void SetRaycastHit(RaycastHit2D hitToPass) {
@@ -151,25 +235,36 @@ public class PortalScript : MonoBehaviour
     
     private void AssignCornerPoints()
     {
-        Vector3 colliderSize = mainBC.size;
-        Vector3 colliderCenter = mainBC.bounds.center;
-        Quaternion colliderRotation = mainBC.transform.rotation;
+        Vector3 colliderSize = boxCol.size;
+        Vector3 colliderCenter = boxCol.bounds.center;
+        Quaternion colliderRotation = boxCol.transform.rotation;
 
         // Calculate the local position of the corners relative to the collider's center
         Vector3 tf = new Vector3(colliderSize.x * 0.49f, colliderSize.y * 0.49f, 4f);
         Vector3 bf = new Vector3(colliderSize.x * 0.49f, -colliderSize.y * 0.49f, 4f);
         Vector3 tb = new Vector3(-colliderSize.x * 0.5f, colliderSize.y * 0.5f, 4f);
         Vector3 bb = new Vector3(-colliderSize.x * 0.5f, -colliderSize.y * 0.5f, 4f);
+        Vector3 center = new Vector3(0, 0, 4f);
 
-        BoundsCorners = new BoundsPoints(tf, bf, tb, bb);
+        BoundsCorners = new BoundsPoints(tf, bf, tb, bb, center);
         //BoundsCorners.LogVectors();
     }
 
     // todo: implement layer mask here, code may be unoptimized
     private bool CheckCollisions() {
-        List<Collider2D> colliderList = new List<Collider2D>();
-        ContactFilter2D filter = new ContactFilter2D();
+        // List<Collider2D> colliderList = new List<Collider2D>();
+        // ContactFilter2D filter = new ContactFilter2D();
         LayerMask mask;
+        bool isTouchingPortalPartner = false;
+        BoxCollider2D partnerBoxCol = null;
+        
+        if (_portalPartner) {
+            partnerBoxCol = _portalPartner.GetComponent<BoxCollider2D>();
+            partnerBoxCol.enabled = true;
+            //Physics2D.SyncTransforms();
+            isTouchingPortalPartner = boxCol.IsTouching(partnerBoxCol);
+            //Debug.Log(isTouchingPortalPartner);
+        }
 
         if (portalColor == PortalColor.Blue) {
             mask = LayerMask.GetMask("Environment", "Orange Portal");
@@ -177,7 +272,7 @@ public class PortalScript : MonoBehaviour
             mask = LayerMask.GetMask("Environment", "Blue Portal");
         }
         else {
-            Debug.Log("Assigned portal has no color.");
+            Debug.Log("New portal has no color.");
             mask = LayerMask.GetMask("Environment");
         }
 
@@ -185,49 +280,35 @@ public class PortalScript : MonoBehaviour
         // filter.minDepth = 4; // Change from 4f -> -4.1f?
         // filter.maxDepth = 4; // Change from 4f -> 4.1f?
         // filter.useDepth = true;
-        filter.useTriggers = true;
+        // filter.useTriggers = true;
 
-        int mainBCOverlapCount = mainBC.OverlapCollider(filter, colliderList);
+        // int mainBCOverlapCount = boxCol.OverlapCollider(filter, colliderList);
 
         Collider2D tfOverlapCol = Physics2D.OverlapPoint(transform.TransformPoint(BoundsCorners.topFrontPoint), mask);
         Collider2D bfOverlapCol = Physics2D.OverlapPoint(transform.TransformPoint(BoundsCorners.bottomFrontPoint), mask);
         bool isTbOverlap = _surfaceObjectCol.OverlapPoint(transform.TransformPoint(BoundsCorners.topBackPoint));
         bool isBbOverlap = _surfaceObjectCol.OverlapPoint(transform.TransformPoint(BoundsCorners.bottomBackPoint));
-        bool isTouchingPortalPartner = false;
-
-        if (_portalPartner) {
-            isTouchingPortalPartner = mainBC.IsTouching(_portalPartner.GetComponent<BoxCollider2D>());
-        }
-
-        String debugMessage = "[" + mainBCOverlapCount + "]";
-
-        if (tfOverlapCol) {
-            debugMessage += tfOverlapCol.name + ", "; 
-        }
-        else {
-            debugMessage += "null, ";
-        }
         
-        if (bfOverlapCol) {
-            debugMessage += bfOverlapCol.name + ", "; 
-        }
-        else {
-            debugMessage += "null";
-        }
-
-        debugMessage += ", " + isTbOverlap + ", " + isBbOverlap;
-        
-        Debug.Log(debugMessage);
+        // String debugMessage = "[" + mainBCOverlapCount + "]";
+        // if (tfOverlapCol) {
+        //     debugMessage += tfOverlapCol.name + ", "; 
+        // }
+        // else {
+        //     debugMessage += "null, ";
+        // }
+        // if (bfOverlapCol) {
+        //     debugMessage += bfOverlapCol.name + ", "; 
+        // }
+        // else {
+        //     debugMessage += "null";
+        // }
+        // debugMessage += ", " + isTbOverlap + ", " + isBbOverlap;
+        // Debug.Log(debugMessage);
         //Debug.Log("[" + mainBCOverlapCount + "]" + tfOverlapCol.name + ", " + bfOverlapCol.name + ", " + isTbOverlap + ", " + isBbOverlap);
 
         int moveDirection = 0;
         int collisionMoves = 0;
-        
-        // Checks if original portal placement touches partner portal
-        if (isTouchingPortalPartner) {
-            
-        }
-        
+
         // Check deletion conditions
         if ((!isTbOverlap && !isBbOverlap) || (tfOverlapCol && bfOverlapCol)) {
             Debug.Log("Portal in invalid position, destroyed.");
@@ -266,6 +347,12 @@ public class PortalScript : MonoBehaviour
             collisionMoves++;
         }
 
+        boxCol.enabled = false;
+        
+        if (_portalPartner && partnerBoxCol) {
+            partnerBoxCol.enabled = false;
+        }
+
         return true;
     }
 
@@ -299,7 +386,7 @@ public class PortalScript : MonoBehaviour
         // Draws cube at portal bottom
         Gizmos.DrawWireCube(
             new Vector3(0, -transform.localScale.y/2, 0), 
-            new Vector3(0.8f, 0.3f, 1));
+            new Vector3(0.3f, 0.2f, 1));
 
         // Restore the original Gizmos matrix
         Gizmos.matrix = originalMatrix;
