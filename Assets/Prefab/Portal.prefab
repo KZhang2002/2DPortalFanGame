@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 2746673829131095535}
   - component: {fileID: 2746673829131095534}
   - component: {fileID: 4579731939224193478}
-  - component: {fileID: -3981929947320995883}
+  - component: {fileID: -2325190178625590133}
   m_Layer: 0
   m_Name: Portal
   m_TagString: Untagged
@@ -148,16 +148,15 @@ MonoBehaviour:
   gizmoLength: 0.6
   portalColor: 0
   boxCol: {fileID: 2746673829131095534}
-  edgeCol: {fileID: -3981929947320995883}
+  polyCol: {fileID: -2325190178625590133}
   portalEdgeObj: {fileID: 3800118521886587771}
   collisionStep: 0.1
   maxCollisionTests: 100
   portalPlayerEntryThreshold: 0.25
-  portalObjectEntryThreshold: 0.3
   portalPlayerExitOffset: 0.25
   portalObjectExitOffset: 0.1
---- !u!68 &-3981929947320995883
-EdgeCollider2D:
+--- !u!60 &-2325190178625590133
+PolygonCollider2D:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
@@ -189,14 +188,22 @@ EdgeCollider2D:
   m_UsedByEffector: 0
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
-  m_EdgeRadius: 0
+  m_SpriteTilingProperty:
+    border: {x: 0, y: 0, z: 0, w: 0}
+    pivot: {x: 0.5, y: 0.5}
+    oldSize: {x: 1, y: 1}
+    newSize: {x: 1, y: 1}
+    adaptiveTilingThreshold: 0.5
+    drawMode: 0
+    adaptiveTiling: 0
+  m_AutoTiling: 0
   m_Points:
-  - {x: 0, y: 0.5}
-  - {x: 0, y: -0.5}
-  m_AdjacentStartPoint: {x: 0, y: 0}
-  m_AdjacentEndPoint: {x: 0, y: 0}
-  m_UseAdjacentStartPoint: 0
-  m_UseAdjacentEndPoint: 0
+    m_Paths:
+    - - {x: 0, y: 0.5}
+      - {x: 0, y: -0.5}
+      - {x: -1.5, y: -0.5}
+      - {x: -1.5, y: 0.5}
+  m_UseDelaunayMesh: 0
 --- !u!1 &3800118521886587771
 GameObject:
   m_ObjectHideFlags: 0
@@ -266,8 +273,8 @@ EdgeCollider2D:
   m_Offset: {x: 0, y: 0}
   m_EdgeRadius: 0
   m_Points:
-  - {x: -0.1, y: 0.5}
-  - {x: 0.1, y: 0.5}
+  - {x: 0, y: 0.5}
+  - {x: 0.5, y: 0.51}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0
@@ -307,8 +314,8 @@ EdgeCollider2D:
   m_Offset: {x: 0, y: 0}
   m_EdgeRadius: 0
   m_Points:
-  - {x: -0.1, y: -0.5}
-  - {x: 0.1, y: -0.5}
+  - {x: 0, y: -0.5}
+  - {x: 0.5, y: -0.51}
   m_AdjacentStartPoint: {x: 0, y: 0}
   m_AdjacentEndPoint: {x: 0, y: 0}
   m_UseAdjacentStartPoint: 0

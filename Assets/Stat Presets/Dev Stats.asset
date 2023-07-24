@@ -14,7 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   PlayerLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 8
   ClimbableLayer:
     serializedVersion: 2
     m_Bits: 0
@@ -39,7 +39,7 @@ MonoBehaviour:
   JumpPower: 36
   MaxFallSpeed: 40
   FallAcceleration: 110
-  JumpEndEarlyGravityModifier: 0
+  JumpEndEarlyGravityModifier: 3
   CoyoteFrames: 7
   JumpBufferFrames: 7
   AllowWalls: 0

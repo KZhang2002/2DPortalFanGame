@@ -64,7 +64,7 @@ public class PortalScript : MonoBehaviour
     
     //Collider Info
     [SerializeField] private BoxCollider2D boxCol;
-    [SerializeField] private EdgeCollider2D edgeCol;
+    [SerializeField] private PolygonCollider2D polyCol;
     [SerializeField] private GameObject portalEdgeObj;
     private CapsuleCollider2D _standingCollider;
     private CapsuleCollider2D _crouchingCollider;
@@ -113,37 +113,68 @@ public class PortalScript : MonoBehaviour
     }
 
     private void OnTriggerEnter2D(Collider2D col) {
-        Debug.Log(portalColor + " portal entered.");
-        _edgeController.EnableEdges();
-        Physics2D.IgnoreCollision(col, _surfaceObjectCol, true);
-        //Debug.Log("Portal edges enabled. Surface collider disabled.");
-        CheckPortalCollision(col);
+        if (_portalPartner) {
+            Debug.Log(portalColor + " portal entered.");
+            _edgeController.EnableEdges();
+            Physics2D.IgnoreCollision(col, _surfaceObjectCol, true);
+            //Debug.Log("Portal edges enabled. Surface collider disabled.");
+            CheckPortalCollision(col);
+        }
+        
     }
 
     private void OnTriggerStay2D(Collider2D col) {
-        CheckPortalCollision(col);
+        if (_portalPartner) {
+            CheckPortalCollision(col);
+        }
     }
 
     private void OnTriggerExit2D(Collider2D col) {
-        Debug.Log(portalColor + " portal exited.");
-        _edgeController.DisableEdges();
-        Physics2D.IgnoreCollision(col, _surfaceObjectCol, false);
-        //Debug.Log("Portal edges disabled. Surface collider enabled.");
+        if (_portalPartner) {
+            Debug.Log(portalColor + " portal exited.");
+            _edgeController.DisableEdges();
+            Physics2D.IgnoreCollision(col, _surfaceObjectCol, false);
+            //Debug.Log("Portal edges disabled. Surface collider enabled.");
+        }
+        
     }
 
     private void CheckPortalCollision(Collider2D col) {
+        Collider2D playerCol;
+
+        if (_playerController.Crouching) {
+            playerCol = _playerController.CrouchingColliderRef;
+        }
+        else {
+            playerCol = _playerController.StandingColliderRef;
+        }
+
         if (col.CompareTag("Player")) {
-            if (edgeCol.Distance(col).distance < -portalPlayerEntryThreshold) {
+            if (polyCol.OverlapPoint(playerCol.bounds.center)) {
+                Debug.Log(col.name + " intersects object");
                 OnEnterPortal(col);
-                Debug.Log("Player teleported");
             }
         }
         else {
-            if (edgeCol.Distance(col).distance < -col.bounds.extents.x) {
+            if (polyCol.OverlapPoint(col.bounds.center)) {
+                Debug.Log(col.name + " intersects object");
                 OnEnterPortal(col);
-                Debug.Log("Object teleported");
             }
         }
+        
+
+        // if (col.CompareTag("Player")) {
+        //     if (edgeCol.Distance(col).distance < -portalPlayerEntryThreshold) {
+        //         OnEnterPortal(col);
+        //         Debug.Log("Player teleported");
+        //     }
+        // }
+        // else {
+        //     if (edgeCol.Distance(col).distance < -col.bounds.extents.x) {
+        //         OnEnterPortal(col);
+        //         Debug.Log("Object teleported");
+        //     }
+        // }
     }
 
     private void OnEnterPortal(Collider2D col) {
@@ -163,8 +194,7 @@ public class PortalScript : MonoBehaviour
         else {
             offCenterOffset = transform.TransformDirection(Vector3.right) * portalObjectExitOffset;
         }
-            
-        
+
         col.transform.position = _portalPartner.transform.position + offset + offCenterOffset;
         
         Vector2 targetNormal = _portalPartner.GetComponent<PortalScript>()._hit.normal;
