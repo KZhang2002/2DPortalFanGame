@@ -42,7 +42,7 @@ MonoBehaviour:
   JumpEndEarlyGravityModifier: 3
   CoyoteFrames: 7
   JumpBufferFrames: 7
-  AllowWalls: 1
+  AllowWalls: 0
   RequireInputPush: 0
   WallClimbSpeed: 5
   WallFallAcceleration: 8
@@ -60,7 +60,7 @@ MonoBehaviour:
   LadderSlideSpeed: 12
   LadderCooldownFrames: 8
   LadderPopForce: 20
-  AllowLedges: 1
+  AllowLedges: 0
   LedgeGrabDeceleration: 4
   LedgeGrabPoint: {x: 0.31, y: 0.75}
   StandUpOffset: {x: 0.19, y: 0.02}

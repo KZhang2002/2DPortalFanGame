@@ -4911,7 +4911,11 @@ MonoBehaviour:
   objectOrange: {fileID: 7085602635079147028, guid: a80261badc5f15b48bde034485681fad, type: 3}
   standingCollider: {fileID: 1954408297806908107}
   crouchingCollider: {fileID: 5785933210716493631}
-  heldObjSpeed: 1000
+  heldObjMoveSpeed: 1000
+  heldObjRotationSpeed: 1000
+  heldObjDistance: 1.5
+  heldObjMargin: 0.5
+  heldObjTeleportThreshold: 2
   shootMask:
     serializedVersion: 2
     m_Bits: 64

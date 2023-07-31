@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using TarodevController;
 using Unity.VisualScripting;
 using UnityEngine;
+using UnityEngine.Events;
 
 public class PortalScript : MonoBehaviour
 {
@@ -25,15 +26,8 @@ public class PortalScript : MonoBehaviour
         }
 
         public void LogVectors() {
-            String debugMessage = "";
-
-            debugMessage += "Top Front Vector: " + topFrontPoint.ToString();
-            debugMessage += "Bottom Front Vector: " + bottomFrontPoint.ToString();
-            debugMessage += "Top Back Vector: " + topBackPoint.ToString();
-            debugMessage += "Bottom Back Vector: " + bottomBackPoint.ToString();
-            debugMessage += "Center Vector: " + center.ToString();
-            
-            Debug.Log(debugMessage);
+            Debug.Log($"Top Front Vector: {topFrontPoint}, Bottom Front Vector: {bottomFrontPoint}, " +
+                      $"Top Back Vector: {topBackPoint}, Bottom Back Vector: {bottomBackPoint}, Center Vector: {center}");
         }
         
         // These points are in local space
@@ -68,6 +62,7 @@ public class PortalScript : MonoBehaviour
     [SerializeField] private GameObject portalEdgeObj;
     private CapsuleCollider2D _standingCollider;
     private CapsuleCollider2D _crouchingCollider;
+    private List<Collider2D> _colList = new List<Collider2D>();
     
     //Collider Detection Options
     [SerializeField] private float collisionStep = 0.1f;
@@ -75,12 +70,11 @@ public class PortalScript : MonoBehaviour
     [SerializeField] private float portalPlayerEntryThreshold = 0.25f;
     [SerializeField] private float portalPlayerExitOffset = 0.25f;
     [SerializeField] private float portalObjectExitOffset = 0.25f;
+    
+    //Unity Event System
+    [SerializeField] UnityEvent onFirstEnter = default, onLastExit = default;
 
     public BoundsPoints BoundsCorners { get; private set; }
-    
-    private void Awake() {
-        
-    }
 
     private void Start()
     {
@@ -105,22 +99,46 @@ public class PortalScript : MonoBehaviour
         // Creates portal
         if (isPortalValid) {
             PortalManager.Instance.AssignPortal(portalColor, gameObject);
+            //enabled = true;
         }
     }
 
-    private void Update() {
+    void FixedUpdate () {
+        for (int i = 0; i < _colList.Count; i++) {
+            Collider2D col = _colList[i];
+            if (!col || !col.gameObject.activeInHierarchy) {
+                _colList.RemoveAt(i--);
+                if (_colList.Count == 0) {
+                    onLastExit.Invoke();
+                    enabled = false;
+                }
+            }
+        }
         
+        
+    }
+    
+    void OnDisable () {
+        if (_colList.Count > 0) {
+            _colList.Clear();
+            onLastExit.Invoke();
+        }
     }
 
     private void OnTriggerEnter2D(Collider2D col) {
         if (_portalPartner) {
-            Debug.Log(portalColor + " portal entered.");
-            _edgeController.EnableEdges();
+            // Debug.Log(portalColor + " portal entered.");
+
+            if (_colList.Count == 0) {
+                onFirstEnter.Invoke();
+                _colList.Add(col);
+                //enabled = true;
+            }
+
             Physics2D.IgnoreCollision(col, _surfaceObjectCol, true);
             //Debug.Log("Portal edges enabled. Surface collider disabled.");
             CheckPortalCollision(col);
         }
-        
     }
 
     private void OnTriggerStay2D(Collider2D col) {
@@ -131,54 +149,38 @@ public class PortalScript : MonoBehaviour
 
     private void OnTriggerExit2D(Collider2D col) {
         if (_portalPartner) {
-            Debug.Log(portalColor + " portal exited.");
-            _edgeController.DisableEdges();
+            // Debug.Log(portalColor + " portal exited.");
+            
+            if (_colList.Remove(col) && _colList.Count == 0) {
+                onLastExit.Invoke();
+                //enabled = false;
+            }
+            
             Physics2D.IgnoreCollision(col, _surfaceObjectCol, false);
             //Debug.Log("Portal edges disabled. Surface collider enabled.");
         }
+    }
+
+    private void CloneObject(Collider2D col) {
         
     }
 
     private void CheckPortalCollision(Collider2D col) {
-        Collider2D playerCol;
+        Vector3 colCenter = col.bounds.center;
+        Vector3 colCenterRelative = transform.InverseTransformPoint(colCenter);
 
-        if (_playerController.Crouching) {
-            playerCol = _playerController.CrouchingColliderRef;
+        col.IsTouching(boxCol);
+        //todo: 2nd check's numbers are arbitrary, so its not exact. change if things aren't going through portal
+        if (colCenterRelative.x < 0 && (colCenterRelative.y is < 0.25f and > -0.25f)) {
+            OnEnterPortal(col);
         }
-        else {
-            playerCol = _playerController.StandingColliderRef;
-        }
-
-        if (col.CompareTag("Player")) {
-            if (polyCol.OverlapPoint(playerCol.bounds.center)) {
-                Debug.Log(col.name + " intersects object");
-                OnEnterPortal(col);
-            }
-        }
-        else {
-            if (polyCol.OverlapPoint(col.bounds.center)) {
-                Debug.Log(col.name + " intersects object");
-                OnEnterPortal(col);
-            }
-        }
-        
-
-        // if (col.CompareTag("Player")) {
-        //     if (edgeCol.Distance(col).distance < -portalPlayerEntryThreshold) {
-        //         OnEnterPortal(col);
-        //         Debug.Log("Player teleported");
-        //     }
-        // }
-        // else {
-        //     if (edgeCol.Distance(col).distance < -col.bounds.extents.x) {
-        //         OnEnterPortal(col);
-        //         Debug.Log("Object teleported");
-        //     }
-        // }
     }
 
+    //todo: offset is wrong, seems to be teleporting player into walls
     private void OnEnterPortal(Collider2D col) {
         GameObject obj = col.gameObject;
+
+        Debug.DrawRay(col.bounds.center,_playerController.Velocity.normalized * 2f, Color.green, 0.5f);
         
         if (_portalBlockList.Contains(obj.layer) || !_portalPartner) {
             Debug.Log("Object entering portal is on invalid layer: " + LayerMask.LayerToName(obj.layer));
@@ -186,20 +188,13 @@ public class PortalScript : MonoBehaviour
         }
         
         Vector3 offset = col.transform.position - transform.position;
-        Vector3 offCenterOffset;
 
-        if (col.CompareTag("Player")) {
-            offCenterOffset = transform.TransformDirection(Vector3.right) * portalPlayerExitOffset;
-        }
-        else {
-            offCenterOffset = transform.TransformDirection(Vector3.right) * portalObjectExitOffset;
-        }
-
-        col.transform.position = _portalPartner.transform.position + offset + offCenterOffset;
+        Vector3 newPos = _portalPartner.transform.position + offset;
+        col.transform.position = newPos;
         
         Vector2 targetNormal = _portalPartner.GetComponent<PortalScript>()._hit.normal;
         float dotProduct;
-        Vector2 newVelocity;
+        Vector2 newVelocity /*= _portalPartner.transform.InverseTransformDirection(_playerController.Velocity)*/;
         
         if (col.CompareTag("Player")) {
             dotProduct = Vector2.Dot(_playerController.Velocity, targetNormal);
@@ -207,10 +202,13 @@ public class PortalScript : MonoBehaviour
             _playerController.SetVelocity(newVelocity, PlayerForce.Burst);
         }
         else {
-            dotProduct = Vector3.Dot(col.attachedRigidbody.velocity, targetNormal);
+            dotProduct = Vector2.Dot(col.attachedRigidbody.velocity, targetNormal);
             newVelocity = dotProduct * targetNormal;
             col.attachedRigidbody.velocity = newVelocity;
         }
+        
+        Debug.DrawRay(newPos,newVelocity.normalized * 2f, Color.magenta, 0.5f);
+        Debug.DrawLine(newPos, newPos + Vector3.right, Color.cyan, 0.5f);
     }
 
     //I think theres an easier/shorter way of making setters here
@@ -221,6 +219,10 @@ public class PortalScript : MonoBehaviour
 
     public void SetRaycastHit(RaycastHit2D hitToPass) {
         _hit = hitToPass;
+    }
+
+    public PortalColor GetColor() {
+        return portalColor;
     }
 
     // todo: rewrite to use local space rather than world space
@@ -245,13 +247,7 @@ public class PortalScript : MonoBehaviour
         // Adjusts rotation so bottom of portal 
         // faces the player when placed on ceiling or floor
         else if (zValue is -90f or 90f) {
-            // If this code is pulled out of the player, change transform.position.x
-            // to the transform of the object specifically
-            // todo: this implementation is really sloppy but im just spitballin here
-            if (_hit.point.x > _player.transform.position.x && _hit.point.y > _player.transform.position.y) {
-                yValue = 180f;
-            } 
-            else if (_hit.point.x < _player.transform.position.x && _hit.point.y < _player.transform.position.y) {
+            if (_hit.point.x > _player.transform.position.x) {
                 yValue = 180f;
             }
         }
@@ -290,7 +286,7 @@ public class PortalScript : MonoBehaviour
         
         if (_portalPartner) {
             partnerBoxCol = _portalPartner.GetComponent<BoxCollider2D>();
-            partnerBoxCol.enabled = true;
+            // partnerBoxCol.enabled = true;
             //Physics2D.SyncTransforms();
             isTouchingPortalPartner = boxCol.IsTouching(partnerBoxCol);
             //Debug.Log(isTouchingPortalPartner);
@@ -377,11 +373,11 @@ public class PortalScript : MonoBehaviour
             collisionMoves++;
         }
 
-        boxCol.enabled = false;
+        // boxCol.enabled = false;
         
-        if (_portalPartner && partnerBoxCol) {
-            partnerBoxCol.enabled = false;
-        }
+        // if (_portalPartner && partnerBoxCol) {
+        //     partnerBoxCol.enabled = false;
+        // }
 
         return true;
     }

@@ -16,10 +16,6 @@ PrefabInstance:
       propertyPath: m_Layer
       value: 8
       objectReference: {fileID: 0}
-    - target: {fileID: 2746673829131095529, guid: 4ab3bb500a871484780a186ff668503e, type: 3}
-      propertyPath: m_TagString
-      value: Portal
-      objectReference: {fileID: 0}
     - target: {fileID: 2746673829131095532, guid: 4ab3bb500a871484780a186ff668503e, type: 3}
       propertyPath: m_RootOrder
       value: 0

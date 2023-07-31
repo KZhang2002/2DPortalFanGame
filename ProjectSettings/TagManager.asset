@@ -8,7 +8,7 @@ TagManager:
   - PortalManager
   - Portal
   - Physics Object
-  - Interactable
+  - Activator
   layers:
   - Default
   - TransparentFX

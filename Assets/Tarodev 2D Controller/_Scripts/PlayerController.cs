@@ -632,6 +632,9 @@ namespace TarodevController {
                 Gizmos.DrawRay(grabHeight + _stats.LedgeRaycastSpacing * Vector3.down, 0.5f * facingDir * Vector3.right);
                 Gizmos.DrawRay(grabHeight + _stats.LedgeRaycastSpacing * Vector3.up, 0.5f * facingDir * Vector3.right);
             }
+            
+            Gizmos.color = Color.black;
+            Gizmos.DrawRay(_standingCollider.bounds.center, Velocity.normalized * _speed.magnitude * 0.5f);
         }
 
         private void OnValidate() {
